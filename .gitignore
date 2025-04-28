@@ -1,0 +1,60 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+*.egg-info/
+.installed.cfg
+*.egg
+lib/
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+.env/
+env.bak/
+venv.bak/
+myenv/
+logs/
+web fonts
+fonts
+
+# VS Code settings
+.vscode/
+.cursor/
+
+# Editor backups and temporary files
+*.swp
+*~
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+logs/ 
+cfgs/
+venv/
+zen_styles/
+stash/
+
+mypy.ini
+.mypy_cache
+py.typed
+.pylintrc
+class_diagram.puml
+package-lock.json
+pyrightconfig.json
+package.json
+pyvenv.cfg
+doc/code_gen.md
+doc/design.txt
+doc/learining_python.md
+doc/learning_git.md
+doc/projekt-01-kapitoly-chapters.md
+doc/terminology.md
+doc/z3.md

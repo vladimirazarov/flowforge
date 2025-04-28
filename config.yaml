@@ -1,0 +1,132 @@
+# Configuration for FlowForge
+# Note: Many parameters here can be overridden via CLI arguments
+# Refer to the README or run `python -m src.cli --help` for details
+
+##################### Core Settings #####################
+# Main tuning parameter (integer 1-4). Higher values generally produce more complex examples.
+# Affects defaults for complexity, nesting, parameters unless overridden below
+test_input_complexity: 2
+
+# Optional: Set a specific seed for reproducible random generation
+# Remove the '#' to enable. If commented out, a random seed is used
+# seed: 12345
+
+# Coverage criterion for test path finding.
+test_paths_finder:
+  coverage_criterion: 'NC'  # Options: NC, EC, EPC, PPC
+
+##################### SHTV Calculation Parameters #####################
+# Decay factors for node depth (alpha) and position (beta) in ceiling assignment
+# Uncomment to override defaults (alpha=0.40, beta=0.50)
+# Higher values -> fewer operations in nodes that are far away or deeply nested
+# Lower  values -> more operations in nodes that are far away or deeply nested
+shtv_alpha: 0.25
+shtv_beta: 0.15
+
+##################### Developer Options (Internal Use) #####################
+# These settings are primarily for development and debugging
+# Uncomment specific lines to override the default values
+# Be aware that it doesn't have to work out of box, you might need to install some other things (gcc, pytest) 
+# especially for validate outputs
+developer_options:
+  # Add comments with Node IDs in the generated code (Default: false)
+  log_node_ids_in_code: true
+  # Add comments with branch/loop role labels (TRUE, FALSE, LOOP BODY, etc.) in generated code (Default: false)
+  log_branch_labels_in_code: true
+  # Enable detailed logging specifically within the FlowBuilder class (Default: false)
+  flow_builder_log: false
+  # Placeholder: Enable logging for Fragment Forest operations (Default: false)
+  log_fragment_forest: false
+  # Placeholder: Enable logging for Edge Condition Builder (Default: false)
+  log_edge_cond_builder: false
+  # Placeholder: Enable logging for Loop Termination logic (Default: false)
+  log_loop_term: false
+  # Placeholder: Enable logging for Test Path finding (Default: false)
+  log_test_path: false
+  # Validate the outputs after pipeline run (Default: false)
+  validate_outputs: true 
+  # Show rich (might be helpful to disable while developing) (default: true)
+  show_rich: true 
+
+##################### CFG Structure Tuning (Advanced) #####################
+# These settings control the generated graph structure
+# Uncomment specific lines to override the default values derived from `test_input_complexity`
+
+cfg_builder:
+  # Target cyclomatic complexity.
+  # Default map based on test_input_complexity: {1:3, 2:5, 3:7, 4:9}
+  # Warning: Manual override might impact SHTV scoring validity
+  # total_cyclomatic_complexity: 6
+
+  # Probability (0.0-1.0) of choosing nesting over sequential structures
+  # Default map based on test_input_complexity: {1:0.3, 2:0.4, 3:0.5, 4:0.6}
+  # Warning: Manual override might impact SHTV scoring validity
+  # nesting_probability: 0.5
+
+  # Maximum allowed nesting depth for structures.
+  # Default map based on test_input_complexity: {1:1, 2:2, 3:3, 4:3}
+  # Warning: Manual override heavily impacts SHTV calculations
+  # max_nesting_depth: 3
+
+##################### SHTV Calculation Weights #####################
+# These weights influence the SHTV calculation
+# Modify only if you understand the SHTV formula implications
+weights:
+  a: 0    # has_condition (Default: 0)
+  b: 2    # has_loop (Default: 2)
+  c: 1    # logical_ops inside a node (Default: 1)
+  d: 8    # arithmetic_ops inside a node (Default: 8)
+  e: 3    # nesting_depth (Default: 3)
+  f: 5    # variables_used in node (Default: 5)
+  g: 3    # prime paths count (global) (Default: 3)
+  h: 8    # cyclomatic complexity (global) (Default: 8)
+  i: 2    # variables count in the function (global) (Default: 2)
+  k: 1    # distance_from_start (node position metric) (Default: 1)
+
+##################### Expression and Operation Generation #####################
+expression_initializer:
+  # Override default number of function parameters (Default map: {1:1, 2:2, 3:3, 4:4})
+  # Warning: Low numbers might complicate edge condition generation
+  # num_func_params: 2
+  # Range [min, max] for random constant values
+  value_range: [-100, 100]
+  # Pool of names for function parameters
+  params_names: ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+  # Comparison operators allowed in generated conditions (==, != are not implmeneted)
+  allowed_comparison_operators: ['>', '>=', '<', '<=', '==', '!=']
+  # Types of expressions allowed for conditions (compound condtion is not implemented)
+  allowed_expressions: [
+    'logical_comparison',
+    'compound_condition'
+  ]
+
+complexity_tuner:
+  # Probability (0.0-1.0) of generating a nested expression (e.g., var = a + (b * c)) vs. a simple one (e.g., var = a + b) when creating operands 
+  # Lower value means more simple operations
+  operand_nesting_probability: 0.5
+  # Number of dedicated 'state' variables to create (used for absorbing complexity)
+  num_state_vars: 3
+  # Arithmetic operators allowed in generated node operations (not all are implemented)
+  allowed_operators: ['+', '-', '*', '/', '%']
+  # Types of operations allowed in nodes (not all are implemented)
+  allowed_operations: [
+    # Basic operations
+    'increment', 'decrement', 'prefix_increment', 'prefix_decrement',
+    # Assignment operations
+    'assignment', 'addition_assign', 'subtraction_assign', 'multiplication_assign', 'division_assign', 'modulo_assign',
+    # Complex expressions
+    'complex_arithmetic', 'simple_arithmetic', 'mixed_arithmetic',
+    # Logical operations
+    'logical_and', 'logical_or', 'logical_not', 'complex_logical',
+  ]
+  # Pool of variable names to choose from for generated 'for' loops
+  # Uncomment and modify to restrict or change the pool
+  # for_loop_variable_names: ['i', 'j', 'k', 'l', 'm', 'n']
+
+##################### Visualization #####################
+visualization:
+  # Attributes to show in CFG node labels. Affects generated SVG.
+  # Available options: id, type, depth, shtv, max_shtv, position, class_name
+  # Default: ['depth', 'id']
+  node_labels: ['depth', 'id']
+

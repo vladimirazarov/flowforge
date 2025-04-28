@@ -1,0 +1,131 @@
+# config.yaml
+# Author: Vladimir Azarov
+
+# DEVELOPMENT CONFIG, USE THE MAIN ONE UNDER ROOT DIRECTORY, 
+# OTHERWISE THIS ONE WILL BE USED 
+########################## BASIC ##################### 
+# If no seed is specified, the random seed will be used
+# seed: 1
+# seed: 394233
+
+# Main tuning parameter (1-4)
+test_input_complexity: 2 
+
+
+########################## ADVANCED ##################### 
+# Developer options
+developer_options:
+  debug: true
+  logging_levels: ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+  show_shtv: true          # show shtv and max shtv for each node
+# Weights for the different criteria (change only if you know what you are doing)
+weights:
+  a: 0    # has_condition
+  b: 2   # has_loop
+  c: 8   # logical_ops
+  d: 4 # arithmetic_ops
+  e: 4   # nesting_depth
+  f: 1    # variables_used
+  g: 3    # pp
+  h: 8   # cc
+  i: 2   # variables count in the function
+  k: 4    # distance_from_start
+
+# Visualization options
+visualization:
+  # Node labeling options - list of attributes to show in node labels
+  # Available options: id, type, depth, shtv, max_shtv, position, class_name
+  node_labels: ['depth', 'id']
+  traversal_method: 'bfs'  # Choose between 'dfs' or 'bfs' for node labeling
+  show_edge_conditions: true 
+
+
+# CFG Builder options
+cfg_builder:
+  # Target cyclomatic complexity. Uncomment and set a value to override the default mapping based on test_input_complexity (Default map: 1->3, 2->5, 3->7, 4->9).
+  # Warning: SHTV scoring system will likely won't work correctly if CC is set too high/low for the test_input_complexity.
+  # total_cyclomatic_complexity: 6  
+  # 
+  # Probability of nesting vs sequential. Uncomment and set 0.0-1.0 to override the default mapping based on test_input_complexity (Default map: 1->0.3, 2->0.4, 3->0.5, 4->0.6).
+  # Warning: SHTV scoring system might behave unexpectedly if nesting probability is manually set too high/low for the test_input_complexity.
+  # nesting_probability: 0.5  
+  #
+  # Maximum allowed nesting depth. Uncomment and set a value to override the default mapping based on test_input_complexity (Default map: 1->1, 2->2, 3->3, 4->3).
+  # Warning: SHTV scoring heavily relies on nesting depth. Manual overrides might significantly affect SHTV calculation.
+  # max_nesting_depth: 3
+  #
+  # if, else, while, for
+  required_fragments: []  # List of required fragment types
+
+# Test Paths Finder options
+test_paths_finder:
+  coverage_criterion: 'NC'  # NC, EC, EPC, PPC
+# Expression Initializer options
+expression_initializer:
+  # Number of function parameters. Uncomment and set a specific number to override the default mapping based on test_input_complexity (Default map: 1->1, 2->2, 3->3, 4->4). 
+  # Warning: Manually setting this value might lead to the edge condition generation failing more often, especially if the number of parameters is low relative to the CFG complexity.
+  # num_func_params: 2
+  # Value range for the parameters (only int is supported for now)
+  value_range: [-100, 100]
+  # Function parameters names that will be randomly selected
+  params_names: ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+  allowed_comparison_operators: ['>', '>=', '<', '<=', '==', '!=']
+  allowed_expressions: [
+    'logical_comparison',
+    'compound_condition'
+  ]
+  
+# Complexity Tuner options
+complexity_tuner:
+  # Probability (0.0-1.0) of generating a nested expression (e.g., var = a + (b * c)) vs. a simple one (e.g., var = a + b) when creating operands. Lower value means more simple operations.
+  operand_nesting_probability: 0.3
+  allowed_operators: ['+', '-', '*', '/', '%']
+  allowed_operations: [
+    # Basic operations
+    'increment',        # var++;
+    'decrement',        # var--;
+    'prefix_increment', # ++var;
+    'prefix_decrement', # --var;
+      
+    # Assignment operations
+    'assignment',        # var = val;
+    'addition_assign',   # var += val;
+    'subtraction_assign', # var -= val;
+    'multiplication_assign', # var *= val;
+    'division_assign',   # var /= val;
+    'modulo_assign',     # var %= val;
+      
+    # Complex expressions
+    'complex_arithmetic',  # var = var1 + val1 - val2;
+    'simple_arithmetic',   # var = var1 + val1;
+    'mixed_arithmetic',    # var = val1 + var1 * val2 / (var2 - val3);
+      
+    # Logical operations
+    'logical_and',     # var = var && (x > 0);
+    'logical_or',      # var = var || (x < 10);
+    'logical_not',     # var = !var;
+    'complex_logical', # var = (x > 0) && (y < 10) || (z == 0);
+  ]
+
+
+
+
+# Removed or commented out unused parameters
+#output_directory: 
+#number_of_variants:
+#max_variables_count: 5
+#min_variables_count: 1
+
+# UNIMPLEMENTED FEATURES 
+# cfg_structure: "entry->cond->loop->exit"
+# number_of_strongly_connected_components: 1
+# strongly_connected_components_structure:
+#  - "cond->loop->[loop->cond]"
+#  - "ncond->loop->cond"
+#  - "cond->loop->cond"
+# cyclomatic_complexity_of_each_strongly_connected_component:
+#  - 3
+#  - 2
+#  - 4
+
+
