@@ -3,7 +3,7 @@
 FlowForge is a tool designed to generate synthetic software artifacts for testing purposes. Based on configurable parameters, it creates not just a Control Flow Graph (CFG), but also corresponding C source code, test paths with inputs, and various visualizations. You can easily adjust the complexity and structure of the generated artifacts. It comes with two ways to use it:
 
 *   A **Command-Line Interface (CLI)** for running the whole generation process automatically.
-*   A **Terminal User Interface (TUI)** for stepping through the process interactively.
+*   A **Terminal User Interface (TUI)** for stepping through the process manually.
 
 ## What You'll Need
 
@@ -12,12 +12,14 @@ FlowForge is a tool designed to generate synthetic software artifacts for testin
 
 ## Getting Started (Installation)
 
-1.  **Download the Code:**
-    You should have received a link to download the `software` directory from a cloud storage service (Nextcloud).
-    Download and extract the contents of the `software` directory to a location on your computer.
-    Open your terminal or command prompt and navigate into that extracted `software` directory:
+1.  **Clone the Repository:**
+    Open your terminal or command prompt and run the following command to clone the FlowForge repository:
     ```bash
-    cd path/to/your/extracted/software
+    git clone https://github.com/vladimirazarov/flowforge.git
+    ```
+    Then, navigate into the cloned directory:
+    ```bash
+    cd flowforge
     ```
 
 2.  **Set up a Virtual Environment (Recommended):**
@@ -40,7 +42,7 @@ FlowForge is a tool designed to generate synthetic software artifacts for testin
     *Note: If you plan on making changes to the FlowForge code itself, install it in editable mode:* `pip install -e .`
 
     **(Alternative) Using Other Tools:**
-    If you use package managers like Poetry or PDM, you can typically use their respective `install` commands (e.g., `poetry install` or `pdm install`).
+    If you use package managers like Poetry or PDM, you can typically use their own `install` commands (e.g., `poetry install` or `pdm install`).
 
     **(Alternative) Using `requirements.txt`):**
     A `requirements.txt` file is also provided for compatibility or in environments where `pip install .` might not be directly usable. If you prefer this method:
@@ -55,7 +57,7 @@ You can tweak how FlowForge works by editing the `config.yaml` file in the main 
 *   The random starting point (`seed`)
 *   How complex the tests should be (`test_input_complexity`)
 *   Details about the graph structure (like nesting levels)
-*   The code coverage goal (`coverage_criterion`)
+*   The code coverage goal (`coverage_type`)
 *   ...and more!
 
 Check `config.yaml` for all the options.
@@ -135,7 +137,7 @@ The TUI allows you to inspect the state of the CFG after each pipeline stage. He
 6.  **Observe & Save (Optional):**
     *   Press `d`, `s`, `p` to see the newly calculated test paths.
     *   Press `a` to save this state (e.g., to `output/run2`).
-7.  **Build Conditions:** Press `c`. This assigns conditions to edges and tries to make paths feasible.
+7.  **Build Conditions:** Press `c`. This assigns conditions to edges and tries to make paths workable.
 8.  **Observe & Save (Optional):**
     *   Press `d`, `s`, `p` (check path details/formulas).
     *   Press `a` to save this state (e.g., to `output/run3`).
@@ -147,25 +149,26 @@ The TUI allows you to inspect the state of the CFG after each pipeline stage. He
 11. **Save Final:** Press `a` to save the final outputs (e.g., to `output/run4`).
 12. **Quit:** Press `q` to exit.
 
-This step-by-step approach, combined with saving incrementally after stages, is useful for understanding how each part of the pipeline transforms the CFG and the generated artifacts. You can compare the contents of the `output/run<N>` directories to see how the visualizations, code, and path data "grow" at each step.
+This step-by-step approach, combined with saving in stages after stages, is useful for understanding how each part of the pipeline changes the CFG and the generated files. You can compare the contents of the `output/run<N>` directories to see how the diagrams, code, and path data "grow" at each step.
 
 ## Where do the Outputs Go?
 
 By default, all generated files are saved into an `output/run<N>` directory (where `<N>` is a run number like 1, 2, etc.) created within the main `software` directory where you run the tool. A typical run might produce files like:
 
 *   `cfg.pdf`: A visual representation of the Control Flow Graph.
-*   `fragment_forest.pdf`: A visualization of the internal structure used during generation.
-*   `generated.c`: The synthesized C source code corresponding to the CFG.
-*   `config.yaml`: A copy of the configuration parameters used for the run.
+*   `fragment_forest.pdf`: A diagram of the internal structure used during generation.
+*   `generated.c`: The created C source code matching the CFG.
+*   `config.yaml`: A copy of the setting parameters used for the run.
 *   `test_paths.txt`: A human-readable list of the generated test paths, their node sequences, and effective formulas.
 *   `test_paths.json`: A structured JSON version of the test paths, including calculated test inputs.
-*   `summary.pdf`: A consolidated PDF report containing the code, CFG visualization and test paths.
+*   `summary.pdf`: A combined PDF report containing the code, CFG diagram and test paths.
 
 If you use the CLI, you can specify a different location using the `--output-dir` option (e.g., `python -m src.cli pipeline --output-dir ./my_custom_outputs`). Otherwise, both the CLI (without `--output-dir`) and the TUI's 'Save' command will create a new `output/run<N>` folder for the results.
 
 ## Known Limitations
 
-*   **Complex CFGs:** For highly complex Control Flow Graphs, particularly those with deeply nested loops or intricate branching, the tool may occasionally struggle to generate all required operations. This can sometimes result in the generated C code (`generated.c`) being syntactically or logically incomplete for these edge cases.
+*   **Complex CFGs:** For highly complex Control Flow Graphs, particularly those with deeply nested loops or detailed branching, the tool may occasionally struggle to generate all required operations. This can sometimes result in the generated C code (`generated.c`) being structurally or logically incomplete for these edge cases. It is connected with finding latching node and should be fixed inside fragment_forest.py codegen logic.
+*   **Prime Path Coverage (PPC) on Large Graphs:** For large graphs with significant nesting, the PPC coverage type might fail to generate workable test inputs. The current edge condition builder may not adequately handle limits introduced by paths entering and exiting multiple nested loops. This can lead to the generation of **invalid test inputs** for PPC on complex graphs. Potential solutions involve improving the edge condition building logic to better track state across loop boundaries, adding symbolic execution techniques, or limiting the use of input function parameters within conditions of deeply nested loops.
 
 ## Utility Scripts (`src/scripts/`)
 
@@ -173,10 +176,10 @@ This directory contains helper scripts for automating common tasks or analysis r
 
 **Example:**
 
-*   `organize_summaries.py`: This script demonstrates how to run the FlowForge pipeline automatically using the CLI for several specific configurations defined within the script. After each run, it copies the *entire output directory* (e.g., `output/run<N>/`) to a final location (`../thesis/src/obrazky-figures/`), renaming the copied directory based on the configuration used (e.g., `EPC_FINAL_3/`).
+*   `organize_summaries.py`: This script shows how to run the FlowForge pipeline automatically using the CLI for several specific settings defined within the script. After each run, it copies the *entire output directory* (e.g., `output/run<N>/`) to a final location (`../thesis/src/obrazky-figures/`), renaming the copied directory based on the setting used (e.g., `EPC_FINAL_3/`).
 
 To run this script (make sure your virtual environment is active):
 ```bash
 python src/scripts/organize_summaries.py
 ```
-Remember to check the script's contents for the exact configurations and output paths it uses.
+Remember to check the script's contents for the exact settings and output paths it uses.

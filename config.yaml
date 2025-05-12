@@ -30,7 +30,7 @@ shtv_beta: 0.15
 # especially for validate outputs
 developer_options:
   # Add comments with Node IDs in the generated code (Default: false)
-  log_node_ids_in_code: true
+  log_node_ids_in_code: true 
   # Add comments with branch/loop role labels (TRUE, FALSE, LOOP BODY, etc.) in generated code (Default: false)
   log_branch_labels_in_code: true
   # Enable detailed logging specifically within the FlowBuilder class (Default: false)
@@ -44,7 +44,7 @@ developer_options:
   # Placeholder: Enable logging for Test Path finding (Default: false)
   log_test_path: false
   # Validate the outputs after pipeline run (Default: false)
-  validate_outputs: true 
+  validate_outputs: false 
   # Show rich (might be helpful to disable while developing) (default: true)
   show_rich: true 
 
